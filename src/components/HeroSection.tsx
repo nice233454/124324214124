@@ -1,6 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Calculator, Shield, BadgeCheck, UserCheck, Droplets } from 'lucide-react';
-import { supabase } from '../lib/supabase';
 import { openCallbackModal } from './CallbackModal';
 
 const advantages = [
@@ -26,26 +25,11 @@ const advantages = [
   },
 ];
 
+const VIDEO_URL = 'https://s3.twcstorage.ru/782c2053-d45b-4028-b43b-bd041bb9d404/%D0%B2%D0%B8%D0%B4%D0%B5%D0%BE%20%D0%BA%D0%BB%D0%BE%D0%BF%D1%8B%20%D0%B4%D0%BB%D1%8F%20%D0%BF%D0%B5%D1%80%D0%B2%D0%BE%D0%B3%D0%BE%20%D1%8D%D0%BA%D1%80%D0%B0%D0%BD%D0%B0.mp4';
+
 export default function HeroSection() {
-  const [videoUrl, setVideoUrl] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
   const [videoError, setVideoError] = useState(false);
-
-  useEffect(() => {
-    async function fetchVideo() {
-      const { data } = await supabase
-        .from('site_settings')
-        .select('hero_video_url')
-        .eq('id', 1)
-        .maybeSingle();
-
-      if (data?.hero_video_url) {
-        setVideoUrl(data.hero_video_url);
-      }
-      setLoading(false);
-    }
-    fetchVideo();
-  }, []);
+  const [videoLoaded, setVideoLoaded] = useState(false);
 
   return (
     <>
@@ -53,18 +37,19 @@ export default function HeroSection() {
       <section className="hidden sm:block relative bg-gray-950 overflow-hidden">
         {/* Video Background */}
         <div className="absolute inset-0 z-0">
-          {loading ? (
-            <div className="w-full h-full bg-gradient-to-br from-gray-900 via-emerald-950 to-gray-900 animate-pulse" />
-          ) : videoUrl && !videoError ? (
+          {!videoError ? (
             <video
               autoPlay
               loop
               muted
               playsInline
-              className="w-full h-full object-cover opacity-55"
+              className={`w-full h-full object-cover opacity-55 transition-opacity duration-1000 ${
+                videoLoaded ? 'opacity-55' : 'opacity-0'
+              }`}
+              onCanPlay={() => setVideoLoaded(true)}
               onError={() => setVideoError(true)}
             >
-              <source src={videoUrl} type="video/mp4" />
+              <source src={VIDEO_URL} type="video/mp4" />
             </video>
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-gray-900 via-emerald-950 to-gray-900" />
@@ -142,18 +127,19 @@ export default function HeroSection() {
       <section className="sm:hidden relative bg-gray-950 overflow-hidden min-h-screen">
         {/* Video Background */}
         <div className="absolute inset-0 z-0">
-          {loading ? (
-            <div className="w-full h-full bg-gradient-to-br from-gray-900 via-emerald-950 to-gray-900 animate-pulse" />
-          ) : videoUrl && !videoError ? (
+          {!videoError ? (
             <video
               autoPlay
               loop
               muted
               playsInline
-              className="w-full h-full object-cover opacity-55"
+              className={`w-full h-full object-cover opacity-55 transition-opacity duration-1000 ${
+                videoLoaded ? 'opacity-55' : 'opacity-0'
+              }`}
+              onCanPlay={() => setVideoLoaded(true)}
               onError={() => setVideoError(true)}
             >
-              <source src={videoUrl} type="video/mp4" />
+              <source src={VIDEO_URL} type="video/mp4" />
             </video>
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-gray-900 via-emerald-950 to-gray-900" />
